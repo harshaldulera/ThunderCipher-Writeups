@@ -1,4 +1,4 @@
-On opening the HEX of the image I found some text.
+On opening the HEX of the image, I found some text.
 
 <figure><img src="../src/Misc/Mindscrew/hexedit.png"></figure>
 
