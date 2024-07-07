@@ -117,3 +117,9 @@ ThunderCipher{chmod}
 ```
 ThunderCipher{chattr}
 ```
+
+**Pipes**
+<figure><img src="../src/Linux/pipes.png"></figure>
+```
+ThunderCipher{l1Nux_c0Mm4Nd_1j3cT1on}
+```
