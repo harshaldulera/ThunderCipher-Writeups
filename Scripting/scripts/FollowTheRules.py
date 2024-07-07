@@ -12,20 +12,21 @@ def is_special_character(char):
     return char in '@#_&-+]|$!'
 
 def next_alphabet_char(char):
-    # Correctly handles wrapping around after 'z'
-    offset = ord(char.lower()) - 97
-    offset = (offset + 1) % 26
-    return chr(offset + 97)
+    if char.lower() == 'z':
+        return 'a'
+    return chr(((ord(char.lower()) - 97 + 1) % 26) + 97)
 
 def calculate_s(word, n):
     size = len(word)
     somme = 0
     for i in range(n, size):
-        # Correctly calculate z based on the actual character in the word
-        z = ord(next_alphabet_char(word[i])) if word[i].isalpha() else ord(word[i])
+        if word[i].isalpha():
+            z = ord(next_alphabet_char(word[i]))
+        else:
+            z = ord(word[i])
         V = 1 if is_vowel(word[(i + 1) % size]) else 0
-        G = i if is_special_character(word[(i - 1) % size]) else 23
-        somme += i * z ** V + (G % 7)
+        G = n if is_special_character(word[(i - 1) % size]) else 23
+        somme += i * (z ** V) + (G % 7)
     return somme
 
 def apply_rule_6(word):
@@ -41,23 +42,17 @@ def apply_rule_6(word):
 
 def apply_rule_5(word, shift):
     if len(word) % 2 == 1:
-        # Shift letters to the right by the extracted shift value
-        og_word = word
         shift = shift % len(word)
+        og_word = word
         word = word[-shift:] + word[:-shift]
-        
-        # Replace the last letter with the most frequently used vowel
         vowels = [char for char in og_word if is_vowel(char)]
         if vowels:
             freq_vowels = Counter(vowels)
             sorted_vowels = sorted(freq_vowels.items(), key=lambda x: (-x[1], og_word.index(x[0])))
             most_common_vowel = sorted_vowels[0][0]
-            
             word = word[:-1] + most_common_vowel
     else:
-        # Replace 't' with 'p' and 'c' with 'z'
         word = word.replace('t', 'p').replace('T', 'P').replace('c', 'z').replace('C', 'Z')
-    
     return word
 
 def receive_until(sock, pattern):
