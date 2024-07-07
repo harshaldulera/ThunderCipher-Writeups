@@ -1,9 +1,9 @@
 import socket
 import re
 from collections import Counter
-HOST = "216.107.139.152"  # Replace with your server's IP address
-PORT = 8989  # Replace with your server's port
 
+HOST = "216.107.139.152"
+PORT = 8989
 
 def is_vowel(char):
     return char.lower() in 'aeiou'
@@ -12,13 +12,17 @@ def is_special_character(char):
     return char in '@#_&-+]|$!'
 
 def next_alphabet_char(char):
-    return chr(((ord(char.lower()) - 97 + 1) % 26) + 97)
+    # Correctly handles wrapping around after 'z'
+    offset = ord(char.lower()) - 97
+    offset = (offset + 1) % 26
+    return chr(offset + 97)
 
 def calculate_s(word, n):
     size = len(word)
     somme = 0
     for i in range(n, size):
-        z = ord(next_alphabet_char(word[i]))
+        # Correctly calculate z based on the actual character in the word
+        z = ord(next_alphabet_char(word[i])) if word[i].isalpha() else ord(word[i])
         V = 1 if is_vowel(word[(i + 1) % size]) else 0
         G = i if is_special_character(word[(i - 1) % size]) else 23
         somme += i * z ** V + (G % 7)
@@ -38,21 +42,23 @@ def apply_rule_6(word):
 def apply_rule_5(word, shift):
     if len(word) % 2 == 1:
         # Shift letters to the right by the extracted shift value
+        og_word = word
         shift = shift % len(word)
         word = word[-shift:] + word[:-shift]
         
         # Replace the last letter with the most frequently used vowel
-        vowels = [char for char in word if is_vowel(char)]
+        vowels = [char for char in og_word if is_vowel(char)]
         if vowels:
             freq_vowels = Counter(vowels)
-            most_common_vowel = max(freq_vowels, key=freq_vowels.get)
+            sorted_vowels = sorted(freq_vowels.items(), key=lambda x: (-x[1], og_word.index(x[0])))
+            most_common_vowel = sorted_vowels[0][0]
+            
             word = word[:-1] + most_common_vowel
     else:
         # Replace 't' with 'p' and 'c' with 'z'
         word = word.replace('t', 'p').replace('T', 'P').replace('c', 'z').replace('C', 'Z')
     
     return word
-
 
 def receive_until(sock, pattern):
     data = b""
@@ -73,13 +79,11 @@ def main():
         s.sendall((word + "\n").encode())
         print("Sent: " + word)
         
-
         for i in range(100):
             data = receive_until(s, r"\}")
             print(data)
             rule_number = re.search(r"Rule (\d+)", data).group(1)
             word = re.search(r"\{(.+?)\}", data).group(1)
-            # print(rule_number, word)
             if rule_number == "6":
                 word = apply_rule_6(word)
                 s.sendall((word + "\n").encode())
@@ -94,11 +98,11 @@ def main():
                 new_word = ''
                 for char in word:
                     if char.lower() in vowels:
-                        new_word+=vowels_map[char.lower()] if char.islower() else vowels_map[char.lower()].upper()
+                        new_word += vowels_map[char.lower()] if char.islower() else vowels_map[char.lower()].upper()
                     else:
                         new_word += char
                 
-                new_new_word = new_word[-1]+new_word[1:-1]+new_word[0]
+                new_new_word = new_word[-1] + new_word[1:-1] + new_word[0]
                 s.sendall((new_new_word + "\n").encode())
                 print("Sent: " + new_new_word)
             elif rule_number == "4":
@@ -112,13 +116,9 @@ def main():
                     word = apply_rule_5(word, shift_value)
                     s.sendall((word + "\n").encode())
                     print("Sent: " + word)
-            else :
+            else:
                 s.sendall((word + "\n").encode())
                 print("Sent: " + word)
-
-            
-        
-       
 
 if __name__ == "__main__":
     main()
