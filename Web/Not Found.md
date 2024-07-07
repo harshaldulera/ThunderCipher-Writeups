@@ -1,4 +1,4 @@
-```
+```sh
 curl -X POST -H "Content-Type: application/json" -d '{"secret":"flag", "comment":"YourComment"}' https://notfound.thundercipher.tech/api/getflag
 ```
 
