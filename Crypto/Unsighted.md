@@ -1,6 +1,6 @@
 Braille decode from `dcode.fr`.
 
-`⠃⠗⠲⠊⠇⠇⠑⠸⠊⠢⠸⠉⠴⠴⠂`
+`⠃⠗⠲⠊⠇⠇⠑⠸⠊⠢⠸⠉⠴⠴⠂`Pyramid
 
 Flag:
 ```
